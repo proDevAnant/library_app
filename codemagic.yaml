@@ -1,0 +1,27 @@
+workflows:
+  android-apk:
+    name: Android APK
+    instance_type: mac_mini_m2
+    max_build_duration: 40
+    environment:
+      flutter: stable
+    scripts:
+      - name: Create Android files (only if missing)
+        script: |
+          if [ ! -d android ]; then
+            flutter create --platforms=android --org in.librarymanager --project-name library_app .
+            rm -f test/widget_test.dart
+          fi
+      - name: Internet permission, app name, link opening
+        script: |
+          M=android/app/src/main/AndroidManifest.xml
+          grep -q 'android.permission.INTERNET' "$M" || perl -0pi -e 's#<application#<uses-permission android:name="android.permission.INTERNET"/>\n    <application#' "$M"
+          grep -q '<queries>' "$M" || perl -0pi -e 's#<application#<queries>\n        <intent><action android:name="android.intent.action.VIEW"/><data android:scheme="https"/></intent>\n    </queries>\n    <application#' "$M"
+          perl -pi -e 's#android:label="[^"]*"#android:label="Library Manager"#' "$M"
+          cat "$M"
+      - name: Get packages
+        script: flutter pub get
+      - name: Build APK
+        script: flutter build apk --release
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
