@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../../state/auth_state.dart';
 import '../../widgets/bell_button.dart';
 import '../../widgets/common.dart';
+import 'seat_map_screen.dart';
 
 class LibraryDashboardScreen extends StatefulWidget {
   /// Switch bottom tab (1 = Students, 2 = Fees).
@@ -121,7 +122,11 @@ class _LibraryDashboardScreenState extends State<LibraryDashboardScreen> {
                 ),
               ]),
 
-              SectionTitle('Seats', trailing: Text('${seats['total'] ?? 0} total', style: const TextStyle(color: AppColors.muted))),
+              SectionTitle('Seats',
+                  trailing: TextButton(
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SeatMapScreen())),
+                    child: Text('Seat map (${seats['total'] ?? 0})'),
+                  )),
               Panel(
                 child: shifts.isEmpty
                     ? const Text('No active shifts', style: TextStyle(color: AppColors.muted))

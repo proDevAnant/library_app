@@ -60,6 +60,26 @@ class Api {
   Future<ApiResponse> delete(String path, [Map<String, dynamic>? body]) =>
       _send('DELETE', path, body: body ?? const {});
 
+  /// Upload one file (photo) as multipart/form-data.
+  Future<ApiResponse> upload(String path, String field, String filePath) async {
+    final req = http.MultipartRequest('POST', _uri(path, null));
+    req.headers['Accept'] = 'application/json';
+    if (token != null) req.headers['Authorization'] = 'Bearer $token';
+    late http.Response res;
+    try {
+      req.files.add(await http.MultipartFile.fromPath(field, filePath));
+      final streamed = await req.send().timeout(const Duration(seconds: 90));
+      res = await http.Response.fromStream(streamed);
+    } on SocketException {
+      throw ApiException('No internet connection. Please check your network.');
+    } on TimeoutException {
+      throw ApiException('Upload is taking too long. Try a smaller photo.');
+    } on http.ClientException {
+      throw ApiException('Could not reach the server. Please try again.');
+    }
+    return _handle(res);
+  }
+
   Uri _uri(String path, Map<String, dynamic>? query) {
     final base = Uri.parse('${AppConfig.apiBase}$path');
     final q = <String, String>{};

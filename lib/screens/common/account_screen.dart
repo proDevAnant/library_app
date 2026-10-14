@@ -78,7 +78,7 @@ class AccountScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          const Center(child: Text('${AppConfig.appName} • v1.0', style: TextStyle(color: AppColors.muted, fontSize: 12))),
+          const Center(child: Text('${AppConfig.appName} • v1.1', style: TextStyle(color: AppColors.muted, fontSize: 12))),
         ],
       ),
     );

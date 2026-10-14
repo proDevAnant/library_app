@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/common.dart';
 import '../common/account_screen.dart';
+import '../fees/fees_screen.dart';
 import 'library_dashboard_screen.dart';
+import 'seat_map_screen.dart';
+import 'students_screen.dart';
 
 /// Library admin app: bottom tabs.
 class LibraryShell extends StatefulWidget {
@@ -19,9 +21,17 @@ class _LibraryShellState extends State<LibraryShell> {
   Widget build(BuildContext context) {
     final pages = <Widget>[
       LibraryDashboardScreen(onOpenTab: (i) => setState(() => _tab = i)),
-      const ComingSoon(title: 'Students', detail: 'Add students, photos, seats and ID cards (update 6B).'),
-      const ComingSoon(title: 'Fees', detail: 'Memberships, payments, UPI verification and receipts (update 6B).'),
-      const AccountScreen(),
+      const StudentsScreen(),
+      const FeesScreen(),
+      AccountScreen(extraTiles: [
+        ListTile(
+          leading: const Icon(Icons.event_seat_outlined),
+          title: const Text('Seat map'),
+          subtitle: const Text('Free and taken seats, add seats'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SeatMapScreen())),
+        ),
+      ]),
     ];
     return Scaffold(
       body: IndexedStack(index: _tab, children: pages),
