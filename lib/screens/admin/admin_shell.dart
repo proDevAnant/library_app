@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/common.dart';
 import '../common/account_screen.dart';
 import 'admin_dashboard_screen.dart';
+import 'admin_payments_screen.dart';
+import 'admin_support_screen.dart';
+import 'libraries_screen.dart';
+import 'plans_screen.dart';
 
 /// Super Admin (software owner) app.
 class AdminShell extends StatefulWidget {
@@ -19,9 +22,22 @@ class _AdminShellState extends State<AdminShell> {
   Widget build(BuildContext context) {
     final pages = <Widget>[
       const AdminDashboardScreen(),
-      const ComingSoon(title: 'Libraries', detail: 'Add, edit, suspend libraries and renew plans (update 6C).'),
-      const ComingSoon(title: 'Payments', detail: 'Verify subscription payments and see support requests (update 6C).'),
-      const AccountScreen(),
+      const LibrariesScreen(),
+      const AdminPaymentsScreen(),
+      AccountScreen(extraTiles: [
+        ListTile(
+          leading: const Icon(Icons.workspace_premium_outlined),
+          title: const Text('Plans & prices'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlansScreen())),
+        ),
+        ListTile(
+          leading: const Icon(Icons.support_agent),
+          title: const Text('Support requests'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminSupportScreen())),
+        ),
+      ]),
     ];
     return Scaffold(
       body: IndexedStack(index: _tab, children: pages),
