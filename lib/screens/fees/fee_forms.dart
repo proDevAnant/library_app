@@ -8,6 +8,7 @@ import '../../core/theme.dart';
 import '../../core/validators.dart';
 import '../../widgets/bits.dart';
 import '../../widgets/common.dart';
+import '../../widgets/decor.dart';
 
 // =====================================================================
 // New membership
@@ -241,7 +242,7 @@ Future<void> showReceiptActions(
   return showDialog<void>(
     context: context,
     builder: (ctx) => AlertDialog(
-      icon: const Icon(Icons.check_circle, color: AppColors.green, size: 44),
+      icon: const SuccessTick(),
       title: Text('${money(amount)} received'),
       content: Text('Receipt $receiptNo is ready.', textAlign: TextAlign.center),
       actionsAlignment: MainAxisAlignment.center,

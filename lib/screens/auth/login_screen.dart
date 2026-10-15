@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api.dart';
-import '../../core/config.dart';
 import '../../core/theme.dart';
 import '../../core/validators.dart';
 import '../../state/auth_state.dart';
 import '../../widgets/common.dart';
+import '../../widgets/decor.dart';
 import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -68,11 +68,38 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final top = MediaQuery.of(context).padding.top;
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Reading-room header
+            RoomPanel(
+              radius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+              padding: EdgeInsets.fromLTRB(24, top + 36, 24, 40),
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+                      child: const Icon(Icons.local_library_rounded, size: 34, color: AppColors.green),
+                    ),
+                    const SizedBox(height: 22),
+                    Text('Welcome back',
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            color: Colors.white, fontWeight: FontWeight.w800, height: 1.1)),
+                    const SizedBox(height: 4),
+                    const Text('Log in with the mobile number your library registered.',
+                        style: TextStyle(color: Colors.white70, fontSize: 15)),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 440),
               child: Form(
@@ -81,22 +108,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const SizedBox(height: 12),
-                      Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(color: AppColors.greenSoft, borderRadius: BorderRadius.circular(22)),
-                          child: const Icon(Icons.local_library_rounded, size: 48, color: AppColors.green),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(AppConfig.appName,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.ink)),
-                      const SizedBox(height: 4),
-                      const Text('Log in to continue',
-                          textAlign: TextAlign.center, style: TextStyle(color: AppColors.muted)),
-                      const SizedBox(height: 28),
                       TextFormField(
                         controller: _phone,
                         keyboardType: TextInputType.phone,
@@ -172,7 +183,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../../state/auth_state.dart';
 import '../../widgets/bell_button.dart';
 import '../../widgets/common.dart';
+import '../../widgets/decor.dart';
 import 'seat_map_screen.dart';
 
 class LibraryDashboardScreen extends StatefulWidget {
@@ -34,6 +35,31 @@ class _LibraryDashboardScreenState extends State<LibraryDashboardScreen> {
     return results[0].map;
   }
 
+  String _greeting(String? name) {
+    final h = DateTime.now().hour;
+    final part = h < 12 ? 'Good morning' : (h < 17 ? 'Good afternoon' : 'Good evening');
+    final first = (name ?? '').trim().split(' ').first;
+    return first.isEmpty ? part : '$part, $first';
+  }
+
+  /// The shift running right now (handles shifts past midnight); else the busiest one.
+  Map<String, dynamic>? _currentShift(List<Map<String, dynamic>> shifts) {
+    if (shifts.isEmpty) return null;
+    final t = TimeOfDay.now();
+    final now = t.hour * 60 + t.minute;
+    int mins(String hhmm) {
+      final p = hhmm.split(':');
+      return (int.tryParse(p[0]) ?? 0) * 60 + (p.length > 1 ? int.tryParse(p[1]) ?? 0 : 0);
+    }
+    for (final s in shifts) {
+      final a = mins('${s['start_time']}'), b = mins('${s['end_time']}');
+      final inside = a < b ? (now >= a && now < b) : (now >= a || now < b);
+      if (inside) return s;
+    }
+    final sorted = [...shifts]..sort((x, y) => toInt(y['occupied']).compareTo(toInt(x['occupied'])));
+    return sorted.first;
+  }
+
   Map<String, dynamic> _m(dynamic v) => v is Map ? v.cast<String, dynamic>() : <String, dynamic>{};
 
   @override
@@ -41,14 +67,7 @@ class _LibraryDashboardScreenState extends State<LibraryDashboardScreen> {
     final lib = context.watch<AuthState>().user?.library;
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(lib?.name ?? 'Dashboard', overflow: TextOverflow.ellipsis),
-            if (lib != null)
-              Text('Code ${lib.code}', style: const TextStyle(fontSize: 12, color: AppColors.muted, fontWeight: FontWeight.w400)),
-          ],
-        ),
+        title: Text(_greeting(context.watch<AuthState>().user?.name)),
         actions: [
           BellButton(unread: _unread, onReturn: () => _loader.currentState?.reload()),
         ],
@@ -69,9 +88,35 @@ class _LibraryDashboardScreenState extends State<LibraryDashboardScreen> {
           final planEnd = plan['plan_end']?.toString();
           final daysLeft = planEnd == null ? null : DateTime.tryParse(planEnd)?.difference(DateTime.now()).inDays;
 
+          final usable = toInt(seats['total']) - toInt(seats['reserved']);
+          final now = _currentShift(shifts);
+
           return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
             children: [
+              RoomPanel(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(lib?.name ?? '', style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+                    Text('Library code ${lib?.code ?? ''}', style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                    const SizedBox(height: 16),
+                    CountUpMoney(
+                      toNum(fees['collected_today']),
+                      style: const TextStyle(color: Colors.white, fontSize: 38, fontWeight: FontWeight.w800, height: 1),
+                    ),
+                    const Text('collected today', style: TextStyle(color: Colors.white70)),
+                    if (now != null && usable > 0) ...[
+                      const SizedBox(height: 18),
+                      SeatFillGrid(total: usable, occupied: toInt(now['occupied'])),
+                      const SizedBox(height: 8),
+                      Text('${now['name']} shift: ${now['occupied']} of $usable seats taken',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
               if (plan['plan_expired'] == true)
                 const Banner2(
                   icon: Icons.warning_amber_rounded,
@@ -101,10 +146,11 @@ class _LibraryDashboardScreenState extends State<LibraryDashboardScreen> {
                   onTap: () => widget.onOpenTab(1),
                 ),
                 StatCard(
-                  label: 'Collected today',
-                  value: money(fees['collected_today']),
-                  icon: Icons.today_outlined,
-                  onTap: () => widget.onOpenTab(2),
+                  label: 'Students without seat',
+                  value: '${st['without_seat'] ?? 0}',
+                  icon: Icons.event_seat_outlined,
+                  color: AppColors.blue,
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SeatMapScreen())),
                 ),
                 StatCard(
                   label: 'Collected this month',
@@ -205,7 +251,7 @@ class _ShiftRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final occ = toInt(s['occupied']);
-    final ratio = total <= 0 ? 0.0 : (occ / total).clamp(0.0, 1.0);
+    final double ratio = total <= 0 ? 0.0 : (occ / total).clamp(0.0, 1.0).toDouble();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -223,11 +269,16 @@ class _ShiftRow extends StatelessWidget {
           const SizedBox(height: 6),
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: ratio,
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0.0, end: ratio),
+              duration: Duration(milliseconds: reduceMotion(context) ? 0 : 900),
+              curve: Curves.easeOutCubic,
+              builder: (_, v, __) => LinearProgressIndicator(
+              value: v,
               minHeight: 8,
               backgroundColor: AppColors.greenSoft,
               color: ratio > 0.9 ? AppColors.danger : AppColors.green,
+            ),
             ),
           ),
           const SizedBox(height: 2),

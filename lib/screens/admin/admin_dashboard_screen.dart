@@ -5,6 +5,7 @@ import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/bell_button.dart';
 import '../../widgets/common.dart';
+import '../../widgets/decor.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -51,8 +52,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           final expired = _l(alerts['expired']);
 
           return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
             children: [
+              RoomPanel(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  CountUpMoney(
+                    toNum(money_['this_month']),
+                    style: const TextStyle(color: Colors.white, fontSize: 38, fontWeight: FontWeight.w800, height: 1),
+                  ),
+                  const Text('earned from libraries this month', style: TextStyle(color: Colors.white70)),
+                  const SizedBox(height: 14),
+                  Text('${libs['total'] ?? 0} libraries, ${d['total_active_students'] ?? 0} students using the app',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                ]),
+              ),
+              const SizedBox(height: 14),
               if (toInt(money_['pending_verification']) > 0)
                 Banner2(
                   icon: Icons.hourglass_top_rounded,
@@ -74,10 +88,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   color: AppColors.danger,
                 ),
                 StatCard(
-                  label: 'Income this month',
-                  value: money(money_['this_month']),
+                  label: 'Earned this year',
+                  value: money(money_['this_year']),
                   icon: Icons.account_balance_wallet_outlined,
-                  hint: 'This year ${money(money_['this_year'])}',
+                  hint: '${money_['pending_verification'] ?? 0} payment(s) to verify',
                 ),
                 StatCard(
                   label: 'Active students (all)',

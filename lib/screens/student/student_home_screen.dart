@@ -8,6 +8,7 @@ import '../../core/theme.dart';
 import '../../widgets/bell_button.dart';
 import '../../widgets/bits.dart';
 import '../../widgets/common.dart';
+import '../../widgets/decor.dart';
 
 /// Student's home: seat, membership, fees, recent payments, notices.
 class StudentHomeScreen extends StatefulWidget {
@@ -61,9 +62,8 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
             children: [
               // ---- ID strip
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: AppColors.green, borderRadius: BorderRadius.circular(18)),
+              RoomPanel(
+                padding: const EdgeInsets.all(18),
                 child: Row(children: [
                   Avatar(url: s['photo_url']?.toString(), name: '${s['name']}', radius: 30),
                   const SizedBox(width: 14),

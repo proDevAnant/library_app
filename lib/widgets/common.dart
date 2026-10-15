@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/api.dart';
 import '../core/theme.dart';
+import 'decor.dart';
 
 /// Green / red message at the bottom of the screen.
 void showSnack(BuildContext context, String message, {bool error = false}) {
@@ -156,7 +157,7 @@ class AsyncLoaderState<T> extends State<AsyncLoader<T>> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const LoadingView();
+    if (_loading) return const SkeletonView();
     if (_data == null) return ErrorView(message: _error ?? 'Could not load', onRetry: reload);
     return RefreshIndicator(
       onRefresh: reload,
@@ -186,11 +187,12 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return PressScale(
+      child: Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(18),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(14),
@@ -206,7 +208,7 @@ class StatCard extends StatelessWidget {
               FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.centerLeft,
-                child: Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.ink)),
+                child: Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.ink, height: 1.1)),
               ),
               const SizedBox(height: 2),
               Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppColors.muted, fontSize: 13)),
@@ -219,6 +221,7 @@ class StatCard extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }
@@ -276,7 +279,7 @@ class Panel extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: padding,
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), border: Border.all(color: AppColors.line)),
       child: child,
     );
   }

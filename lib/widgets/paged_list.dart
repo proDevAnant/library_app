@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/api.dart';
 import 'common.dart';
+import 'decor.dart';
 
 class PageResult {
   final List<Map<String, dynamic>> items;
@@ -95,7 +96,7 @@ class PagedListState extends State<PagedList> {
 
   @override
   Widget build(BuildContext context) {
-    if (_items.isEmpty && (_loading || (_page == 0 && _error == null))) return const LoadingView();
+    if (_items.isEmpty && (_loading || (_page == 0 && _error == null))) return const SkeletonView();
     if (_items.isEmpty && _error != null) return ErrorView(message: _error!, onRetry: refresh);
 
     final head = widget.header?.call(_meta);
